@@ -8,9 +8,11 @@
     </head>
     <body>
       SEARCH <br><br>
-
-      City: {{ $city }} <br>
-      From: {{ $from }} <br>
-      To: {{ $to }} <br>
+      @foreach ($hotels as $hotel)
+        Hotel: {{ $hotel->name }} <br>
+        address: {{ $hotel->address1 }} <br>
+        Phone: {{ $hotel->phone }} <br>
+        <hr>
+      @endforeach
     </body>
 </html>
