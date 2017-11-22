@@ -9,9 +9,10 @@
     <body>
       SEARCH <br><br>
       @foreach ($hotels as $hotel)
+        <img src="{{ asset('images/' . $hotel->picture) }}" alt="{{ $hotel->name }}"> <br>
         Hotel: {{ $hotel->name }} <br>
-        address: {{ $hotel->address1 }} <br>
-        Phone: {{ $hotel->phone }} <br>
+        address: {{ $hotel->address1 }}, {{ $hotel->city }}, {{ $hotel->state }}, {{ $hotel->country }} <br>
+        Stars: {{ $hotel->stars }} <br>
         <hr>
       @endforeach
     </body>
