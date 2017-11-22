@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    private $from;
+    private $to;
+
     public function index()
     {
       return view('home');
@@ -38,20 +41,33 @@ class HomeController extends Controller
        $hotel = Hotel::find($request->hotel);
 
        $roomResult = $this->roomsAvailable($hotel, $from, $to);
+       return response()->json($roomResult, 200);
 
-       return view('rooms')->with('rooms', $roomResult)->with(['from' => $request->from, 'to' => $request->to]) ;
+      //  return view('rooms')->with('rooms', $roomResult)->with(['from' => $request->from, 'to' => $request->to]) ;
     }
 
     public function room(Request $request)
     {
+      $av = [];
       $room = $request->room;
       $from = $request->from;
       $to = $request->to;
 
-      $room = Room::find($room);
-      $availabilityResult = $room->availabilityPrices;
+      $this->from = $from;
+      $this->to = $to;
 
-      return view('room')->with('availability', $availabilityResult)->with(['from' => $request->from, 'to' => $request->to]) ;
+      $room = Room::find($room) ;
+      $availabilityResult = $room->availabilityPrices;
+      $availabilityResult = $availabilityResult->filter(
+        function ($availability) {
+
+          return $availability->date >= $this->from && $availability->date <= $this->to ;
+      });
+      foreach ($availabilityResult as $availability) {
+          array_push($av, $availability);
+      };
+
+       return response()->json($av, 200);
     }
 
     // Helper that returns array with rooms available for one hotel in a date range
