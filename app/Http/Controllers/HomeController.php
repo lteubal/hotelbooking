@@ -20,59 +20,24 @@ class HomeController extends Controller
       $from = $request->from;
       $to = $request->to;
 
-      // verify that the hotels has rooms availables in all the date range
-      // push in hotelResult only the hotels that have rooms available
-      $hotels = Hotel::all()->where('city', $city);
-      $hotelResult = [];
+      // filter only hotels with the city searched or that contain in the city the letters searched (if empty show all)
+      $hotels = Hotel::where('city', 'LIKE', '%'.$city.'%')->get();
 
-      foreach ($hotels as $hotel) {
-        foreach ($hotel->rooms as $room) {
-            $available = 0;
-            while (strtotime($from) < strtotime($to)) {
-              $from = date ("Y-m-d", strtotime("+1 day", strtotime($from)));
-                foreach ($room->availabilityPrices as $availabilityPrice) {
-                  if($availabilityPrice->date == $from &&
-                  ($availabilityPrice->availability = "AVAILABLE" ||
-                   $availabilityPrice->availability = "ON REQUEST" )) {
-                    $available++;
-                  }
-                };
-            }
-            // if the available dates in the database are less than the range then it has no room available for the whole period
-            if($available >= (strtotime($request->to) - strtotime($request->from))/86400) {
-              array_push($hotelResult, $hotel);
-            }
-        };
-      };
+      // verify that the hotels has rooms available in all the date range
+      // push in hotelResult only the hotels that have rooms available
+      $hotelResult =  $this->hotelsAvailable($hotels, $from, $to);
+
 
        return view('search')->with('hotels', $hotelResult)->with(['from' => $request->from, 'to' => $request->to]) ;
     }
 
     public function rooms(Request $request)
     {
-      $hotel = $request->hotel;
-      $from = $request->from;
-      $to = $request->to;
+       $from = $request->from;
+       $to = $request->to;
+       $hotel = Hotel::find($request->hotel);
 
-      $hotel = Hotel::find($hotel);
-      $roomResult = [];
-      foreach ($hotel->rooms as $room) {
-          $available = 0;
-          while (strtotime($from) < strtotime($to)) {
-            $from = date ("Y-m-d", strtotime("+1 day", strtotime($from)));
-              foreach ($room->availabilityPrices as $availabilityPrice) {
-                if($availabilityPrice->date == $from &&
-                ($availabilityPrice->availability = "AVAILABLE" ||
-                 $availabilityPrice->availability = "ON REQUEST" )) {
-                  $available++;
-                }
-              };
-          }
-          // if the available dates in the database are less than the range then it has no room available for the whole period
-          if($available >= (strtotime($request->to) - strtotime($request->from))/86400) {
-            array_push($roomResult, $room);
-          }
-      };
+       $roomResult = $this->roomsAvailable($hotel, $from, $to);
 
        return view('rooms')->with('rooms', $roomResult)->with(['from' => $request->from, 'to' => $request->to]) ;
     }
@@ -87,5 +52,41 @@ class HomeController extends Controller
       $availabilityResult = $room->availabilityPrices;
 
       return view('room')->with('availability', $availabilityResult)->with(['from' => $request->from, 'to' => $request->to]) ;
+    }
+
+    // Helper that returns array with rooms available for one hotel in a date range
+    private function roomsAvailable($hotel, $from, $to)
+    {
+      $currentDate = $from;
+      $roomResult = [];
+      foreach ($hotel->rooms as $room) {
+          $available = 0;
+          while (strtotime($currentDate) < strtotime($to)) {
+            $currentDate = date ("Y-m-d", strtotime("+1 day", strtotime($currentDate)));
+              foreach ($room->availabilityPrices as $availabilityPrice) {
+                if($availabilityPrice->date == $currentDate &&
+                ($availabilityPrice->availability = "AVAILABLE" ||
+                 $availabilityPrice->availability = "ON REQUEST" )) {
+                  $available++;
+                }
+              };
+          }
+          // if the available dates in the database are less than the range then it has no room available for the whole period
+          if($available >= (strtotime($to) - strtotime($from))/86400) {
+            array_push($roomResult, $room);
+          }
+      };
+      return $roomResult;
+    }
+    //  Helper that returns array with hotels with rooms available in all the date range
+    private function hotelsAvailable($hotels, $from, $to)
+    {
+      $hotelResult = [];
+      foreach ($hotels as $hotel) {
+        if( $this->roomsAvailable($hotel, $from, $to)){
+          array_push($hotelResult, $hotel);
+        }
+      };
+      return $hotelResult;
     }
 }
