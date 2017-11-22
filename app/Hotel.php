@@ -9,6 +9,6 @@ class Hotel extends Model
   // Hotel __has_many__ Room
   public function rooms()
   {
-    return $this->hasMany(Room::class);
+    return $this->hasMany(Room::class)->orderBy('room_type', 'asc');
   }
 }
