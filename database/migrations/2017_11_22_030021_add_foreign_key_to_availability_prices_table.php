@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddForeignKeyToRoomsTable extends Migration
+class AddForeignKeyToAvailabilityPricesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class AddForeignKeyToRoomsTable extends Migration
      */
     public function up()
     {
-      Schema::table('rooms', function($table) {
-      $table->foreign('hotel_id')->references('id')->on('hotels')->onDelete('cascade');
+      Schema::table('availability_prices', function($table) {
+      $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
       });
-
     }
 
     /**
@@ -26,8 +25,8 @@ class AddForeignKeyToRoomsTable extends Migration
      */
     public function down()
     {
-      Schema::table('rooms', function($table) {
-      $table->dropForeign('rooms_hotel_id_foreign');
+      Schema::table('availability_prices', function($table) {
+      $table->dropForeign('availability_prices_room_id_foreign');
       });
     }
 }
