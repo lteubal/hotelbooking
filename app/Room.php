@@ -14,6 +14,6 @@ class Room extends Model
   // Room __has_many__ AvailabilityPrice
   public function availabilityPrices()
   {
-    return $this->hasMany(AvailabilityPrice::class);
+    return $this->hasMany(AvailabilityPrice::class)->orderBy('date', 'asc');
   }
 }
