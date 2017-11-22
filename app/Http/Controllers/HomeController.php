@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Hotel;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -16,6 +17,8 @@ class HomeController extends Controller
       $city = $request->city;
       $from = $request->from;
       $to = $request->to;
-      return view('search', $request); 
+
+      $hotels = Hotel::all();
+      return view('search')->with('hotels', $hotels);
     }
 }
