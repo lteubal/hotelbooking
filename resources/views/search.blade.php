@@ -13,6 +13,14 @@
         Hotel: {{ $hotel->name }} <br>
         address: {{ $hotel->address1 }}, {{ $hotel->city }}, {{ $hotel->state }}, {{ $hotel->country }} <br>
         Stars: {{ $hotel->stars }} <br>
+       <form  action="{{ url('/rooms') }}" method="GET">
+        {{ csrf_field() }}
+        <input type="hidden" name="hotel" value="{{ $hotel->id }}">
+        <input type="hidden" name="from"  value="{{ $from }}" >
+        <input type="hidden" name="to"  value="{{ $to }}" >
+
+        <input type="submit" value="Rooms">
+      </form>
         <hr>
       @endforeach
     </body>
