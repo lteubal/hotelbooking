@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Hotel;
 use App\Room;
+use App\AvailabilityPrice;
 
 use Illuminate\Http\Request;
 
@@ -19,6 +20,7 @@ class HomeController extends Controller
 
     public function search(Request $request)
     {
+
       $city = $request->city;
       $from = $request->from;
       $to = $request->to;
@@ -38,13 +40,11 @@ class HomeController extends Controller
     {
        $from = $request->from;
        $to = $request->to;
-       $hotel = Hotel::find($request->hotel);
+       $hotel = Hotel::with('availabilityPrices')->find($request->hotel);
 
        $roomResult = $this->roomsAvailable($hotel, $from, $to);
        return response()->json($roomResult, 200);
-
-      //  return view('rooms')->with('rooms', $roomResult)->with(['from' => $request->from, 'to' => $request->to]) ;
-    }
+     }
 
     public function room(Request $request)
     {
@@ -70,25 +70,28 @@ class HomeController extends Controller
        return response()->json($av, 200);
     }
 
+
+
     // Helper that returns array with rooms available for one hotel in a date range
     private function roomsAvailable($hotel, $from, $to)
     {
-      $currentDate = $from;
+
       $roomResult = [];
       foreach ($hotel->rooms as $room) {
           $available = 0;
-          while (strtotime($currentDate) < strtotime($to)) {
-            $currentDate = date ("Y-m-d", strtotime("+1 day", strtotime($currentDate)));
+          $currentDate = $from;
+          while (strtotime($currentDate) <= strtotime($to)) {
               foreach ($room->availabilityPrices as $availabilityPrice) {
                 if($availabilityPrice->date == $currentDate &&
-                ($availabilityPrice->availability = "AVAILABLE" ||
-                 $availabilityPrice->availability = "ON REQUEST" )) {
+                 $availabilityPrice->availability != "SOLD OUT" ) {
                   $available++;
                 }
               };
+              $currentDate = date ("Y-m-d", strtotime("+1 day", strtotime($currentDate)));
           }
+
           // if the available dates in the database are less than the range then it has no room available for the whole period
-          if($available >= (strtotime($to) - strtotime($from))/86400) {
+          if($available > (strtotime($to) - strtotime($from) )/86400) {
             array_push($roomResult, $room);
           }
       };

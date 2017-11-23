@@ -11,4 +11,19 @@ class Hotel extends Model
   {
     return $this->hasMany(Room::class)->orderBy('room_type', 'asc');
   }
+  public function availabilityPrices()
+  {
+    return $this->hasMany(AvailabilityPrice::class) ;
+  }
+  public function minPrice($from, $to)
+  {
+    $result = $this->availabilityPrices()
+    ->orderBy('price')
+    ->where('date','>=', $from)
+    ->where('date','<=', $to)
+    ->where('availability', '!=', 'SOLD OUT')
+    ->first()
+    ->price;
+  return $result;
+  }
 }

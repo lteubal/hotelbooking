@@ -1,11 +1,12 @@
-SEARCH
-<form  action="{{ url('/search') }}" method="GET">
-  {{ csrf_field() }}
-  <input type="text" name="city" placeholder="Type a City...">
-  <input type="date" name="from" placeholder="From Date...">
-  <input type="date" name="to" placeholder="To Date...">
+<div class="search">
+  <span>Hotel Booking</span>
+  <form  action="{{ url('/search') }}" method="GET">
+    {{ csrf_field() }}
+    <input type="text" name="city" placeholder="Where..." >
+    <input type="date" name="from" placeholder="From Date..." required>
+    <input type="date" name="to" placeholder="To Date..." required>
 
-  <input type="submit" value="Search">
-</form>
+    <input type="submit" value="Search">
+  </form>
+</div>
 <hr>
-<br>

@@ -16,4 +16,13 @@ class Room extends Model
   {
     return $this->hasMany(AvailabilityPrice::class)->orderBy('date', 'asc');
   }
+
+
+  public function avgPrice($from, $to)
+  {
+    $result = $this;
+
+  return $result;
+  }
+
 }

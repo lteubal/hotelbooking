@@ -3,87 +3,137 @@
 @section('body')
   @include('partials.search')
   @foreach ($hotels as $hotel)
-    <img src="{{ asset('images/' . $hotel->picture) }}" alt="{{ $hotel->name }}"> <br>
-    Hotel: {{ $hotel->name }} <br>
-    address: {{ $hotel->address1 }}, {{ $hotel->city }}, {{ $hotel->state }}, {{ $hotel->country }} <br>
-    Stars: {{ $hotel->stars }} <br>
-    <form  action="{{ url('/room') }}" method="GET">
-      {{ csrf_field() }}
-      <input type="hidden" name="room" value="1">
-      <input type="hidden" name="from"  value="{{ $from }}" >
-      <input type="hidden" name="to"  value="{{ $to }}" >
-      <input type="submit" value="Rooms">
-    </form>
-    <script>
-       let cond = "";
-       let canc = "";
+    <div class="container">
+      <div class="hotel">
+        <img src="{{ asset('images/' . $hotel->picture) }}" alt="{{ $hotel->name }}">
+        <div class="name">
+          {{ $hotel->name }}
+        </div>
 
-       function getRooms(){
-         $.ajaxSetup({
-            headers:
-            { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-        });
+         <div class="stars">
+           @for($i=1; $i<=$hotel->stars; $i++)
+             <span class="fa fa-star checked"></span>
+           @endfor
+           @for($i=$hotel->stars; $i<5; $i++)
+             <span class="fa fa-star"></span>
+           @endfor
+         </div>
+         <div class="address">
+           {{ $hotel->address1 }}, {{ $hotel->city }}, {{ $hotel->state }}, {{ $hotel->country }}
+         </div>
+         <div class="price">
+           <span class="starting">starting at</span>
+           <span class="usd">USD</span><span class="amount" id="amount">{{ $hotel->minPrice($from, $to)}} </span>
+           <span class="perroom">per room / night</span>
+            <span class="taxes">*Taxes not included</span>
+         </div>
 
-         $.ajax({
-                type:'GET',
-                url:'/rooms',
-                data:
-               {
-                   hotel: '{{ $hotel->id }}',
-                   from: '{{ $from }}',
-                   to: '{{ $to }}',
-               },
-                success:function(data){
 
-                   $("#roomlist").toggle();
-                   $("#roomlist").html("");
-                   for(let i = 0; i < data.length; i++) {
-                     $("#roomlist").append( data[i].room_type );
-                     $("#roomlist").append( data[i].room_view );
-                     $("#roomlist").append( data[i].occupancy );
+      <script>
+         let cond = "";
+         let canc = "";
+         let ocup = "";
 
-                     $("#roomlist").append( `<button onclick="getRoom( ${data[i].id})">Details</button>` );
-                     $("#roomlist").append( `<div id="roomdetail${data[i].id}" style="display:none">` );
-                     cond = data[i].conditions;
-                     canc = data[i].cancellation_policy;
-                     $("#roomlist").append( "</div>" );
+         function getRooms(hotel){
 
-                 }
-                }
-             });
-          }
+           $.ajaxSetup({
+              headers:
+              { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+          });
 
-          function getRoom(room){
-            $.ajax({
-                   type:'GET',
-                   url:'/room',
-                   data:
-                  {
-                      room: room,
-                      from: '{{ $from }}',
-                      to: '{{ $to }}',
-                  },
-                   success:function(data){
-
-                      $("#roomdetail"+room).toggle();
-                      $("#roomdetail"+room).html("");
-                      $("#roomdetail"+room).append( cond );
-                      $("#roomdetail"+room).append( canc );
-                      $("#roomdetail"+room).append( "<br>" );
+           $.ajax({
+                  type:'GET',
+                  url:'/rooms',
+                  data:
+                 {
+                     hotel: hotel,
+                     from: '{{ $from }}',
+                     to: '{{ $to }}',
+                 },
+                  success:function(data){
+                      $("#roomlist"+hotel).toggle();
+                      $("#roomlist"+hotel).html("");
                       for(let i = 0; i < data.length; i++) {
-                        $("#roomdetail"+room).append( data[i].date );
-                        $("#roomdetail"+room).append( data[i].price );
-                        $("#roomdetail"+room).append( data[i].availability );
+
+                         $("#roomlist"+hotel).append( "<div class='roomrow'>" );
+                         $("#roomlist"+hotel).append( "<div class='roomtype'>" + data[i].room_type + " " + data[i].room_view + "</div>"  );
+                         $("#roomlist"+hotel).append( "<span class='roomav'>" + data[i].availability_prices[0].availability  + "</span> ");
+
+                         $("#roomlist"+hotel).append( "<span class='roomprice'>" + data[i].availability_prices[0].price  + "</span> ");
+                         $("#roomlist"+hotel).append( "<span class='roompricedetail'> USD Per Night</span> ");
+                         $("#roomlist"+hotel).append( "<span class='request'> REQUEST</span> ");
+                         $("#roomlist"+hotel).append( `<span class='details' onclick="getRoom( ${data[i].id})"><i class="fa fa-caret-down" aria-hidden="true"></i> Details</span>` );
+                         $("#roomlist"+hotel).append( `<div id="roomdetail${data[i].id}" class="roomdetail" style="display:none">` );
+                         $("#roomlist"+hotel).append( "</div>" );
+                         cond = data[i].conditions;
+                         canc = data[i].cancellation_policy;
+                         ocup = data[i].occupancy;
+                       }
+                  }
+               });
+            }
+
+            function getRoom(room){
+              $.ajax({
+                     type:'GET',
+                     url:'/room',
+                     data:
+                    {
+                        room: room,
+                        from: '{{ $from }}',
+                        to: '{{ $to }}',
+                    },
+                     success:function(data){
+
+                        $("#roomdetail"+room).toggle();
+                        $("#roomdetail"+room).html("");
+                        $("#roomdetail"+room).append("<div class='ocup'>" );
+                        for(let i=1; i<=ocup; i++) {
+                          $("#roomdetail"+room).append( "<span class='fa fa-user'></span>");
+                        }
+                        $("#roomdetail"+room).append( "</div>");
+                        subtotal = 0;
+                         for(let i = 0; i < data.length; i++) {
+                          $("#roomdetail"+room).append( "<div class='pricesblock'>");
+                          $("#roomdetail"+room).append( "<div class='da'>");
+                          $("#roomdetail"+room).append( data[i].date );
+                          $("#roomdetail"+room).append( "</div>");
+                          $("#roomdetail"+room).append( "<div class='pr'>");
+                          $("#roomdetail"+room).append( data[i].price );
+                          $("#roomdetail"+room).append( "</div>");
+                          $("#roomdetail"+room).append( "</div>");
+                          subtotal +=   Number(data[i].price);
+                        }
+                        taxes = 0.07 * subtotal;
+                        fees = 0;
+                        total = subtotal + taxes + fees;
                         $("#roomdetail"+room).append( "<hr>" );
-                      }
-                   }
-                });
-           } ;
-    </script>
 
-    <button onclick="getRooms()">Rooms</button>
+                        $("#roomdetail"+room).append("<span class='cond'> Conditions and Offers </span><br>");
+                        $("#roomdetail"+room).append("<span class='cond2'>. "+ cond + "</span><br>");
+                        $("#roomdetail"+room).append("<span class='cond'> Cancellation Policy  </span><br>");
+                        $("#roomdetail"+room).append("<span class='cond2'>. "+canc + "</span><br>");
 
-    @include('rooms')
+                        $("#roomdetail"+room).append("<div class='total'> <span class='cond'> Price:"+ subtotal +" USD</span><br><span class='cond'> Taxes 7%: "+ taxes + " USD</span><br><span class='cond'> Fees: "+ fees + " USD</span><br><span class='cond'> Total: "+ total + " USD</span><br></div></div>");
+
+
+                     }
+                  });
+             } ;
+
+
+      </script>
+
+
+    </div>
+    <span class="button"><button onclick="getRooms({{ $hotel->id }})"><i class="fa fa-caret-down" aria-hidden="true"></i> Rooms / Availability</button></span>
+    <div id="roomlist{{ $hotel->id }}" class="roomlist" style="display:none"></div>
+
+    </div>
+
+
 
   @endforeach
+
+
 @stop
