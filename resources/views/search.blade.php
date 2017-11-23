@@ -61,7 +61,6 @@
 
                          $("#roomlist"+hotel).append( "<span class='roomprice'>" + data[i].availability_prices[0].price  + "</span> ");
                          $("#roomlist"+hotel).append( "<span class='roompricedetail'> USD Per Night</span> ");
-                         $("#roomlist"+hotel).append( "<span class='request'> REQUEST</span> ");
                          $("#roomlist"+hotel).append( `<span class='details' onclick="getRoom( ${data[i].id})"><i class="fa fa-caret-down" aria-hidden="true"></i> Details</span>` );
                          $("#roomlist"+hotel).append( `<div id="roomdetail${data[i].id}" class="roomdetail" style="display:none">` );
                          $("#roomlist"+hotel).append( "</div>" );
@@ -104,9 +103,14 @@
                           $("#roomdetail"+room).append( "</div>");
                           subtotal +=   Number(data[i].price);
                         }
-                        taxes = 0.07 * subtotal;
-                        fees = 0;
+                        taxes = Math.round({{ $hotel->tax_rate }} * subtotal / 100);
+                        fees = {{ $hotel->fees }};
                         total = subtotal + taxes + fees;
+                        $("#priceform").html(subtotal);
+                        $("#taxform").html(taxes);
+                        $("#feesform").html(fees);
+                        $("#totalform").html(total);
+
                         $("#roomdetail"+room).append( "<hr>" );
 
                         $("#roomdetail"+room).append("<span class='cond'> Conditions and Offers </span><br>");
@@ -116,6 +120,7 @@
 
                         $("#roomdetail"+room).append("<div class='total'> <span class='cond'> Price:"+ subtotal +" USD</span><br><span class='cond'> Taxes 7%: "+ taxes + " USD</span><br><span class='cond'> Fees: "+ fees + " USD</span><br><span class='cond'> Total: "+ total + " USD</span><br></div></div>");
 
+                        $("#roomdetail"+room).append( `<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="request">Request</button>`);
 
                      }
                   });
@@ -133,7 +138,10 @@
 
 
 
+
+
   @endforeach
 
 
 @stop
+  @include ('request');

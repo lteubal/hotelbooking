@@ -25,6 +25,13 @@ class HomeController extends Controller
       $from = $request->from;
       $to = $request->to;
 
+      if(!empty($city)) {
+        $search = new \App\Search;
+        $search->search = $city;
+        $search->save();
+      }
+
+
       // filter only hotels with the city searched or that contain in the city the letters searched (if empty show all)
       $hotels = Hotel::where('city', 'LIKE', '%'.$city.'%')->orWhere('name', 'LIKE', '%'.$city.'%')->get();
 

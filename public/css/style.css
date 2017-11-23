@@ -1,10 +1,15 @@
+#exampleModal {
+top:10px;
+ }
+
 .checked {
     color: orange;
 }
 .container
 {
   background-color: #EEE;
-  margin:  5px;
+   margin:  auto;
+  text-align: center;
 }
 .search {
   text-align: center;
@@ -37,6 +42,7 @@
   margin-top: 3px;
   display: block;
   float: none;
+
   width: 100%;
 }
 
@@ -50,13 +56,14 @@
   margin-left: 20px;
   font-weight: bold;
   vertical-align: top;
-  width: 40%;
+
 }
 .hotel .address {
   float: left;
   margin-left: 20px;
   font-weight: bold;
   vertical-align: top;
+  color: #888;
 }
 .hotel .stars {
 }
@@ -176,6 +183,9 @@ font-size: 1.4em;
 .roomdetail .da {
 font-weight: bold;}
 
+.roomdetail button {
+  text-align: center;
+}
 .fa-user {
   position: relative;
   left: 300px;
