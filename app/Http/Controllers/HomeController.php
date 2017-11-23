@@ -26,7 +26,7 @@ class HomeController extends Controller
       $to = $request->to;
 
       // filter only hotels with the city searched or that contain in the city the letters searched (if empty show all)
-      $hotels = Hotel::where('city', 'LIKE', '%'.$city.'%')->get();
+      $hotels = Hotel::where('city', 'LIKE', '%'.$city.'%')->orWhere('name', 'LIKE', '%'.$city.'%')->get();
 
       // verify that the hotels has rooms available in all the date range
       // push in hotelResult only the hotels that have rooms available
