@@ -93,14 +93,8 @@
                         $("#roomdetail"+room).append( "</div>");
                         subtotal = 0;
                          for(let i = 0; i < data.length; i++) {
-                          $("#roomdetail"+room).append( "<div class='pricesblock'>");
-                          $("#roomdetail"+room).append( "<div class='da'>");
-                          $("#roomdetail"+room).append( data[i].date );
-                          $("#roomdetail"+room).append( "</div>");
-                          $("#roomdetail"+room).append( "<div class='pr'>");
-                          $("#roomdetail"+room).append( data[i].price );
-                          $("#roomdetail"+room).append( "</div>");
-                          $("#roomdetail"+room).append( "</div>");
+                          $("#roomdetail"+room).append( "<div class='pricesblock'><div class='da'>"+data[i].date +": "+data[i].price+" USD</div></div>");
+
                           subtotal +=   Number(data[i].price);
                         }
                         taxes = Math.round({{ $hotel->tax_rate }} * subtotal / 100);
