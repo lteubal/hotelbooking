@@ -28,6 +28,7 @@ class RequestController extends Controller
         $booking->fees = 0;
         $booking->total = 0;
         $booking->save();
+
         return redirect('/');
      }
 }
